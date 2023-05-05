@@ -80,11 +80,6 @@ async def received_information(update: Update, context: ContextTypes.DEFAULT_TYP
     return CHOOSING
 
 
-# Setup for the excel to write in.
-book = load_workbook('nominated.xlsx')
-xlsx = book.active
-max_row = xlsx.max_row + 1
-
 # Setup for the dataset to write in db
 db = dataset.connect('sqlite:///memo.db')
 table = db['nominated']
@@ -95,22 +90,11 @@ def insert_to_db(**kwargs):
         full_name=kwargs.get("name", ""),
         batch=kwargs.get("batch", ""),
         department=kwargs.get("dep", ""),
-        service=kwargs.get("dep", ""),
+        service=kwargs.get("service", ""),
         description=kwargs.get("desc", "")
     ))
     # for user in db['nominated']:
     #     print(user['full_name'], user['batch'], user['department'], user['service'], user['description'])
-
-
-def write_to_xl(**kwargs):
-    xlsx['A' + str(max_row)] = kwargs.get("name", "")
-    xlsx['B' + str(max_row)] = kwargs.get("batch", "")
-    xlsx['C' + str(max_row)] = kwargs.get("dep", "")
-    xlsx['D' + str(max_row)] = kwargs.get("service", "")
-    xlsx['E' + str(max_row)] = kwargs.get("desc", "")
-
-    path = os.getcwd()
-    book.save(filename=os.path.join(path, 'nominated.xlsx'))
 
 
 async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -143,7 +127,7 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 
-async def Secret_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def secret_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     authorized_users = [579497835]
     if update.message.chat_id in authorized_users:
         conn = sqlite3.connect('memo.db')
@@ -158,7 +142,7 @@ async def Secret_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     application = Application.builder().token("6125105157:AAF8N-gKuINPFP_bu6mfz_0lQTUnPeKTyIc").build()
 
-    application.add_handler(CommandHandler("export", Secret_command))
+    application.add_handler(CommandHandler("export", secret_command))
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
